@@ -93,7 +93,7 @@ var <%= service %>sController = {};
             if(to){
                 delete query.to;
             }else{
-                to = new Date();
+                to = new Date().toISOString();
             }
             query.createdAt.$lt = to;
         }
@@ -112,7 +112,7 @@ if(skip !== 0){
  question = question.skip(skip)
 }
        
-if(limit !== 0){
+if(limit !== 0 || from == null){
       totalResult = totalResult.limit(limit);
         question = question.limit(limit);
 }
