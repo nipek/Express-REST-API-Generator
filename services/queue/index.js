@@ -57,12 +57,12 @@ queue.watchStuckJobs(1000);
 // Process Jobs Here
 module.exports = queue;
 module.exports.kue = kue;
-module.exports.addSchedule = function(crontab, name, job, data){
-    Model.create({crontab: crontab, name: name, job: job, arguments: data})
-    .then(function(){
-        // Silencio es dorado
+module.exports.addSchedule = function (crontab, name, job, data, enabled) {
+  Model.updateOne({ name: name }, { crontab, name, job, arguments: data, enabled }, { upsert: true })
+    .then(function () {
+      // Silencio es dorado
     })
-    .catch(function(err){
-        log.error('Error scheduling job - ', err);
+    .catch(function (err) {
+      log.error('Error scheduling job - ', err);
     });
 };
