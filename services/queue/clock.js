@@ -26,7 +26,7 @@ Model.find({enabled: true})
                         queue.create(job.job, job.arguments)
                         .save();
                           resp.lastRunAt = new Date()
-                        resp.save()
+                        return resp.save()
                     }
                 })
                 .catch(function(err){
