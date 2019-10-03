@@ -6,7 +6,8 @@ var config = require('../../config');
 var concurrency = config.workerConcurrency * 1;
 // Sets the number of listeners to prevent the annoying memory leak error.
 var maxListeners = 20 * concurrency;
-queue.setMaxListeners(maxListeners);
+//queue.setMaxListeners(maxListeners);
+require("events").defaultMaxListeners = maxListeners;
 
 queue.process('searchIndex', concurrency, function(job, done){
     jobs.createSearchTags(job.data, done);
