@@ -118,8 +118,7 @@ Schema.pre('save', function(next) {
     ourDoc.model = collection;
 
     // Dump it in the queue
-    queue.create('searchIndex', ourDoc)
-    .save();
+    queue.add('searchIndex', ourDoc);
     
     next();
 });
