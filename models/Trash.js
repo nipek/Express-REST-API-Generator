@@ -91,8 +91,7 @@ Schema.pre('save', function(next) {
     ourDoc.model = collection;
 
     // Dump it in the queue
-    queue.create('searchIndex', ourDoc)
-    .save();
+    queue.add('searchIndex', ourDoc)
 
     next();
 });
@@ -146,8 +145,7 @@ Schema.pre('update', function(next) {
         // Move along! Nothing to see here!!
     }else{
         // Dump it in the queue
-        queue.create('searchIndex', ourDoc)
-        .save();
+        queue.add('searchIndex', ourDoc);
     }
     ourDoc.updatedAt = new Date(Date.now()).toISOString();
     next();
