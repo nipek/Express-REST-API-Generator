@@ -9,7 +9,6 @@ var debug = require('debug')(collection);
 var schemaObject = {
     RequestId: {
         type: 'String',
-        unique: true
     },
     uri: {
         type: 'String'
