@@ -276,8 +276,7 @@ if(limit !== 0 || from == null){
                 backupData.client = req.appId;
                 backupData.developer = req.developer;
 
-                queue.create('saveToTrash', backupData)
-                .save();
+                queue.add('saveToTrash', backupData);
                 if(n * 1 === last){
                     return resp;
                 }
@@ -314,8 +313,7 @@ if(limit !== 0 || from == null){
         backupData.client = req.appId;
         backupData.developer = req.developer;
 
-        queue.create('saveToTrash', backupData)
-        .save();
+        queue.add('saveToTrash', backupData);
         return [resp];
     })
     .then(function(resp){
