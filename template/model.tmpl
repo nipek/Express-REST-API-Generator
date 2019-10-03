@@ -94,8 +94,7 @@ Schema.pre('save', function(next) {
     ourDoc.model = collection;
 
     // Dump it in the queue
-    queue.create('searchIndex', ourDoc)
-    .save();
+    queue.add('searchIndex', ourDoc)
 
     next();
 });
@@ -148,8 +147,7 @@ Schema.pre('update', function(next) {
 
   ourDoc.query = this.getQuery()
 
-  queue.create('searchIndex', ourDoc)
-    .save();
+  queue.add('searchIndex', ourDoc)
 
 
   // Dump it in the queue
@@ -168,8 +166,7 @@ Schema.pre('updateOne', function(next) {
 
   ourDoc.query = this.getQuery()
 
-  queue.create('searchIndex', ourDoc)
-    .save();
+  queue.add('searchIndex', ourDoc)
 
 
   // Dump it in the queue
