@@ -73,8 +73,7 @@ var <%= service %>s = db.define(table, schemaObject, {
     ourDoc.model = table;
 
     // Dump it in the queue
-    queue.create('searchIndex', ourDoc)
-    .save();
+    queue.add('searchIndex', ourDoc)
 });
 
 <%= service %>s.search = function(string){
