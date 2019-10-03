@@ -1,64 +1,63 @@
 "use strict";
 var config = require('../../config');
-var kue = require('kue');
-var queue = kue.createQueue({
-  redis: config.redisURL
-});
+var Queue = require('bull');
+var queue = new Queue('background workers', config.redisURL);
+
 var log = require('../../services/logger');
 var Model = require('./Model');
 
 // Clean Up Completed Job
 queue
-.on('job enqueue', function(id, type){
-  log.info( 'Job %s got queued of type %s', id, type );
-})
-.on('job complete', function(id, result){
-    log.info('ID: ',id,' Result: ',result);
-    kue.Job.get(id, function(err, job){
-        if (err) {
-            return false;
-        }else{
-            job.remove(function(err){
-              if (err) {
-                throw err;
-            }else{
-                log.info('removed completed job #%d', job.id);
-            }
-        });
-        }
-    });
-});
+  .on('waiting', function (jobId) {
+    // A Job is waiting to be processed as soon as a worker is idling.
+    log.info('Job %s waiting to be processed ', jobId);
+  })
+  .on('completed', async (job, result) => {
+    log.info('Job ID: ', job.id, ' Result: ', result);
+    try {
 
+
+      const jobbed = await queue.getJob(job.id)
+      if (jobbed) {
+        await jobbed.remove()
+        log.info('removed completed job #%d', job.id);
+      }
+
+    } catch (error) {
+      throw false;
+    }
+  }).on('failed', function (job, err) {
+    log.error('job ' + job.id + ' in queue failed... ', err);
+  }).on('error', function (err) {
+    log.error('Queue Error... ', err);
+  });
 // Graceful Shutdown
-process.once( 'SIGTERM', function ( sig ) {
-  queue.shutdown( 5000, function(err) {
-    log.warn( 'Queue shutting down: ', err||'' );
+process.once('SIGTERM', function (sig) {
+  queue.close().then(function () {
+    log.warn('Queue shutting down: ');
     process.exit(0);
-});
-});
+  });
 
-// Error Handling
-queue.on( 'error', function( err ) {
-  log.error( 'Queue Error... ', err );
 });
 
 // Handle uncaughtExceptions
-process.once( 'uncaughtException', function(err){
-  log.error( 'Something bad happened[uncaughtException]: ', err );
-  queue.shutdown( 5000, function(err2){
-    log.error( 'Kue shutdown due to uncaughtException: ', err2 || 'OK' );
-    process.exit( 0 );
-});
+process.once('uncaughtException', function (err) {
+  log.error('Something bad happened[uncaughtException]: ', err);
+  queue.close().then(function () {
+    log.warn('Queue shutting down due to uncaughtException:  ', 'OK');
+    process.exit(0);
+  });
+
 });
 
-// Pull Jobs out of stuck state
-queue.watchStuckJobs(1000);
+// // Pull Jobs out of stuck state
+// queue.watchStuckJobs(1000);
 
 // Process Jobs Here
 module.exports = queue;
-module.exports.kue = kue;
-module.exports.addSchedule = function (crontab, name, job, data, enabled) {
-  Model.updateOne({ name: name }, { crontab, name, job, arguments: data, enabled }, { upsert: true })
+//module.exports.kue = kue;
+module.exports.addSchedule = function (crontab, name, job, data) {
+  Model.create({ crontab: crontab, name: name, job: job, arguments: data })
     .then(function () {
       // Silencio es dorado
     })
