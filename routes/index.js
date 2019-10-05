@@ -185,8 +185,7 @@ router.use(function(req,res,next){
   };
 
 // Dump it in the queue
-queue.create('logRequest', reqLog)
-.save();
+queue.add('logRequest', reqLog)
 
 
   // persist RequestLog entry in the background; continue immediately
