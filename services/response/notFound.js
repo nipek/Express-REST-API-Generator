@@ -12,8 +12,7 @@ module.exports = function(){
     var response = {response: {status: 'error', message: 'not found'}};
     response.requestId = req.requestId;
     
-    queue.create('logResponse', response)
-    .save();
+    queue.add('logResponse', response)
 
     this.status(404).json({status: 'error', message: 'not found'});
 };
