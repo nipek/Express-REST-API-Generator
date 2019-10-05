@@ -12,8 +12,7 @@ module.exports = function(data, message){
     var response = {response: {status: 'error', data: data, message: message ? message : 'forbidden'}};
     response.requestId = req.requestId;
     
-    queue.create('logResponse', response)
-    .save();
+    queue.add('logResponse', response)
 
     if (data !== undefined && data !== null) {
       if(Object.keys(data).length === 0 && JSON.stringify(data) === JSON.stringify({})){
