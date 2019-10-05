@@ -74,7 +74,6 @@ module.exports = function(data, cache, extraData){
  }
 }
 
-queue.create('logResponse', response)
-.save();
+queue.add('logResponse', response)
 
 };
