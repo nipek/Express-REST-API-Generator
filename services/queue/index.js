@@ -5,6 +5,7 @@ var queue = new Queue('background workers', config.redisURL);
 
 var log = require('../../services/logger');
 var Model = require('./Model');
+//queue.LOCK_RENEW_TIME = 60 * 1000; // 1min
 
 // Clean Up Completed Job
 queue
@@ -30,6 +31,8 @@ queue
     log.error('job ' + job.id + ' in queue failed... ', err);
   }).on('error', function (err) {
     log.error('Queue Error... ', err);
+  }).on('stalled', function (job) {
+    log.info('stalled job, restarting it again! %s %s %s', job.queue.name, job.data, jobId);
   });
 // Graceful Shutdown
 process.once('SIGTERM', function (sig) {
