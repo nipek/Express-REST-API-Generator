@@ -5,7 +5,8 @@ var queue = new Queue('background workers', config.redisURL);
 
 var log = require('../../services/logger');
 var Model = require('./Model');
-//queue.LOCK_RENEW_TIME = 60 * 1000; // 1min
+//recognize real stucked jobs
+queue.LOCK_RENEW_TIME = 60 * 1000; // 1min
 
 // Clean Up Completed Job
 queue
