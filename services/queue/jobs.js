@@ -8,6 +8,7 @@ var crypto = require('crypto');
 var request = require('request-promise');
 var q = require('q');
 var debug = require('debug')('jobs');
+var { ObjectId } = require('mongoose').Types
 
 var jobs = {};
 
