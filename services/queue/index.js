@@ -32,7 +32,7 @@ queue
   }).on('error', function (err) {
     log.error('Queue Error... ', err);
   }).on('stalled', function (job) {
-    log.info('stalled job, restarting it again! %s %s %s', job.queue.name, job.data, jobId);
+    log.info('stalled job, restarting it again! %s %s %s', job.queue.name, job.data,  job.id);
   });
 // Graceful Shutdown
 process.once('SIGTERM', function (sig) {
