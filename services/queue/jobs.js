@@ -17,7 +17,7 @@ jobs.createRequestLog = function(request, done){
     log.info('logging API request: ',request.RequestId);
     models.RequestLogs.create(request)
     .then(function(res){
-      return done(false, request.RequestId + ' request log created');
+      return done(false, request.RequestId || request + ' request log created');
   })
     .catch(function(err){
       log.error(err);
@@ -35,7 +35,7 @@ jobs.updateRequestLog = function(response, done){
     
     models.RequestLogs.update({RequestId: requestId},response)
     .then(function(res){
-        return done(false, response.requestId + ' request log updated');
+        return done(false, response.requestId || response + ' request log updated');
     })
     .catch(function(err){
         log.error(err);
