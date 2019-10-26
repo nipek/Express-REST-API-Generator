@@ -37,7 +37,7 @@ module.exports = function(service, requestId, uri, method, data, headers){
         })
         .then(function(resp){
             existss = true;
-            options.json = true;
+            options.json = typeof options.data === 'string' && false;
             if(options.method === 'GET'){
                 options.qs = options.data;
             }else if(options.method === 'POST'){
