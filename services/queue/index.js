@@ -35,24 +35,35 @@ queue
   }).on('stalled', function (job) {
     log.info('stalled job, restarting it again! %s %s %s', job.queue.name, job.data,  job.id);
   });
-// Graceful Shutdown
-process.once('SIGTERM', function (sig) {
-  queue.close().then(function () {
-    log.warn('Queue shutting down: ');
-    process.exit(0);
-  });
 
-});
+
+const shutdown = async (signal) => {
+  try {
+
+    log.warn(`${signal}...`);
+    const repeatableJobs = await queue.getRepeatableJobs();
+    // log.warn('Current repeatable configs: ', repeatableJobs);
+
+
+    await Promise.all(repeatableJobs.map(async job => await queue.removeRepeatableByKey(job.key)));
+    log.warn('Queue shutting down: ');
+    await queue.close()
+
+    process.exit(0);
+
+  } catch (error) {
+    log.error(error);
+
+    process.exit(0);
+  }
+}
+
+// Graceful Shutdown
+process.once('SIGTERM', shutdown);
 
 // Handle uncaughtExceptions
-process.once('uncaughtException', function (err) {
-  log.error('Something bad happened[uncaughtException]: ', err);
-  queue.close().then(function () {
-    log.warn('Queue shutting down due to uncaughtException:  ', 'OK');
-    process.exit(0);
-  });
+process.once('uncaughtException', shutdown);
 
-});
 
 // // Pull Jobs out of stuck state
 // queue.watchStuckJobs(1000);
