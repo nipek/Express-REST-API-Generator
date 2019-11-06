@@ -5,5 +5,6 @@ var initializeController = require('../controllers/Initialize');
 
 // set tag
 router.get('/initialize', initializeController.init);
+router.post('/cronsetup', initializeController.cron);
 
 module.exports = router;
