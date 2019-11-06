@@ -80,4 +80,4 @@ module.exports.addSchedule = function (crontab, name, job, data, enabled) {
       log.error('Error scheduling job - ', err);
     });
 };
-};
+
