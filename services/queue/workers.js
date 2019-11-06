@@ -4,6 +4,8 @@ var queue = require('./');
 var jobs = require('./jobs');
 var config = require('../../config');
 var concurrency = config.workerConcurrency * 1;
+var log = require('../logger');
+var Model = require('./Model');
 // Sets the number of listeners to prevent the annoying memory leak error.
 var maxListeners = 20 * concurrency;
 //queue.setMaxListeners(maxListeners);
@@ -32,5 +34,25 @@ queue.process('sendWebhook', concurrency, function(job,done){
 queue.process('sendHTTPRequest', concurrency, function(job,done){
     jobs.sendHTTPRequest(job.data, done);
 });
+Model.find({ enabled: true })
+    .then(async function (jobs) {
+        log.info('Starting Queue crons...');
+        let repeatableJobs = await queue.getRepeatableJobs();
+        log.warn('Current repeatable configs: removing.........', repeatableJobs);
 
+
+        await Promise.all(repeatableJobs.map(async job => await queue.removeRepeatableByKey(job.key)));
+
+        repeatableJobs = await queue.getRepeatableJobs();
+        log.warn('Current repeatable configs: after removing.........', repeatableJobs);
+        jobs.map(job => {
+
+            log.info('Initializing ' + job.name + '...');
+
+            queue.add(job.job, job.arguments, { repeat: { cron: job.crontab } });
+        })
+    })
+    .catch(function (err) {
+        log.error('An error occured while starting the queue cron: ', err);
+    });
 module.exports = queue;
