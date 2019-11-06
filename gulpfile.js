@@ -1,7 +1,7 @@
 "use strict";
-var jshint = require('gulp-jshint');
+// var jshint = require('gulp-jshint');
 var gulp = require('gulp');
-var stylish = require('jshint-stylish');
+// var stylish = require('jshint-stylish');
 var nodemon = require('gulp-nodemon');
 var debug = require('debug')('gulp');
 var todo = require('gulp-todo');
@@ -20,11 +20,11 @@ var argv = require('minimist');
 
 
 
-gulp.task('lint', function () {
-  return gulp.src(['./*.js', './**/*.js', '!./node_modules/**', '!./node_modules/*.js', '!./template/*.js'])
-    .pipe(jshint())
-    .pipe(jshint.reporter(stylish));
-});
+// gulp.task('lint', function () {
+//   return gulp.src(['./*.js', './**/*.js', '!./node_modules/**', '!./node_modules/*.js', '!./template/*.js'])
+//     .pipe(jshint())
+//     .pipe(jshint.reporter(stylish));
+// });
 
 gulp.task('default', function () {
   var stream = nodemon({ script: 'app.js', env: { 'NODE_ENV': 'development', 'DEBUG': 'gulp' }, tasks: ['lint', 'test'] });
@@ -232,8 +232,8 @@ gulp.task('github-release', function (done) {
     type: "oauth",
     token: config.gitOAuthToken // change this to your own GitHub token or use an environment variable
   }, {
-      preset: 'angular' // Or to any other commit message convention you use.
-    }, done);
+    preset: 'angular' // Or to any other commit message convention you use.
+  }, done);
 });
 
 // Remember to pass argument '-r patch/minor/major' to the release command
