@@ -71,12 +71,13 @@ process.once('uncaughtException', shutdown);
 // Process Jobs Here
 module.exports = queue;
 //module.exports.kue = kue;
-module.exports.addSchedule = function (crontab, name, job, data) {
-  Model.create({ crontab: crontab, name: name, job: job, arguments: data })
+module.exports.addSchedule = function (crontab, name, job, data, enabled) {
+  Model.updateOne({ job }, { crontab, name, job, arguments: data, enabled }, { upsert: true })
     .then(function () {
       // Silencio es dorado
     })
     .catch(function (err) {
       log.error('Error scheduling job - ', err);
     });
+};
 };
