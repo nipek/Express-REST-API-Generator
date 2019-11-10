@@ -34,7 +34,9 @@ queue.process('sendWebhook', concurrency, function(job,done){
 queue.process('sendHTTPRequest', concurrency, function(job,done){
     jobs.sendHTTPRequest(job.data, done);
 });
-Model.find({ enabled: true })
+
+setTimeout(() => {
+Model.find({  })
     .then(async function (jobs) {
         log.info('Starting Queue crons...');
         let repeatableJobs = await queue.getRepeatableJobs();
@@ -46,13 +48,15 @@ Model.find({ enabled: true })
         repeatableJobs = await queue.getRepeatableJobs();
         log.warn('Current repeatable configs: after removing.........', repeatableJobs);
         jobs.map(job => {
-
+ if (job.enabled) {
             log.info('Initializing ' + job.name + '...');
 
             queue.add(job.job, job.arguments, { repeat: { cron: job.crontab } });
+}
         })
     })
     .catch(function (err) {
         log.error('An error occured while starting the queue cron: ', err);
     });
+},10000)
 module.exports = queue;
