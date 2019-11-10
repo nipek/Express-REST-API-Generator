@@ -40,7 +40,7 @@ queue
 const shutdown = async (signal) => {
   try {
 
-    log.warn(`${signal}...`);
+    log.error(signal);
     const repeatableJobs = await queue.getRepeatableJobs();
     // log.warn('Current repeatable configs: ', repeatableJobs);
 
