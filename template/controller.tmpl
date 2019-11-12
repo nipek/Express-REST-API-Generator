@@ -112,7 +112,7 @@ if(skip !== 0){
  question = question.skip(skip)
 }
        
-if(limit !== -1 || from == null){
+if(limit !== -1 || from != null){
       totalResult = totalResult.limit(limit);
         question = question.limit(limit);
 }
