@@ -21,6 +21,8 @@ module.exports = function(service, requestId, uri, method, data, headers){
 
     var existss;
     return q.Promise(function(resolve, reject){
+                options.json = typeof options.data === 'object' ? true : false
+
         Model.findOne({RequestId: requestId, service: service})
         .then(function(resp){
             existss = resp;
@@ -37,7 +39,6 @@ module.exports = function(service, requestId, uri, method, data, headers){
         })
         .then(function(resp){
             existss = true;
-            options.json = typeof options.data === 'string' && false;
             if(options.method === 'GET'){
                 options.qs = options.data;
             }else if(options.method === 'POST'){
