@@ -1,6 +1,6 @@
 {
   "name": "api-template",
-  "version": "0.6.0",
+  "version": "0.9.0",
   "description": "A template for creating APIs Fast",
   "main": "app.js",
   "scripts": {
@@ -11,18 +11,18 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/EnsembleLab/api-template.git"
+    "url": "git+https://github.com/nipek/Express-REST-API-Generator"
   },
   "keywords": [
     "REST",
     "API"
   ],
-  "author": "Olufemi Olanipekun <iolufemi@ymail.com>",
+  "author": "Ifeoluwa Olanipekun <olanipekunifeoluwao@gmail.com>",
   "license": "GPL-3.0",
   "bugs": {
-    "url": "https://github.com/EnsembleLab/api-template/issues"
+    "url": "https://github.com/nipek/Express-REST-API-Generator/issues"
   },
-  "homepage": "https://github.com/EnsembleLab/api-template#readme",
+  "homepage": "https://github.com/nipek/Express-REST-API-Generator#readme",
   "devDependencies": {
     "chai": "^3.5.0",
     "chai-as-promised": "^6.0.0",
