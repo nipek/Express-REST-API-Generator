@@ -39,7 +39,7 @@ Representational state transfer (REST) or RESTful web services is a way of provi
 To start your project with Express REST API Generator, clone the repository from GitHub and install the dependencies.
 
 ```
-$ git clone https://github.com/iolufemi/Express-REST-API-Generator.git ./yourProjectName 
+$ git clone https://github.com/nipek/Express-REST-API-Generator.git ./yourProjectName 
 $ cd yourProjectName
 $ npm install
 $ npm install -g mocha gulp
@@ -153,7 +153,7 @@ You can create multiple versions of your API endpoints by simply adding the vers
 
 ## Getting support, Reporting Bugs and Issues
 
-If you need support or want to report a bug, please log an issue [here](https://github.com/iolufemi/Express-REST-API-Generator/issues)
+If you need support or want to report a bug, please log an issue [here](https://github.com/nipek/Express-REST-API-Generator/issues)
 
 ## Running Unit Tests
 
@@ -165,14 +165,16 @@ $ npm test
 
 ## How to contribute
 
-View how to contribute [here](https://github.com/iolufemi/Express-REST-API-Generator/blob/master/CONTRIBUTING.md)
+View how to contribute [here](https://github.com/nipek/Express-REST-API-Generator/blob/master/CONTRIBUTING.md)
 
 ## Code of Conduct
 
-View the code of conduct [here](https://github.com/iolufemi/Express-REST-API-Generator/blob/master/CODE_OF_CONDUCT.md)
+View the code of conduct [here](https://github.com/nipek/Express-REST-API-Generator/blob/master/CODE_OF_CONDUCT.md)
 
 ## Contributors
 
 - [Olufemi Olanipekun](https://github.com/iolufemi)
+
+- [Ifeoluwa Olanipekun](https://github.com/nipek)
 
 ## FAQs
