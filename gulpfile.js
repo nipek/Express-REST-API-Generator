@@ -1,8 +1,5 @@
 "use strict";
-// var jshint = require('gulp-jshint');
 var gulp = require('gulp');
-// var stylish = require('jshint-stylish');
-var nodemon = require('gulp-nodemon');
 var debug = require('debug')('gulp');
 var todo = require('gulp-todo');
 var mocha = require('gulp-mocha');
@@ -19,25 +16,6 @@ var config = require('./config');
 var argv = require('minimist');
 
 
-
-// gulp.task('lint', function () {
-//   return gulp.src(['./*.js', './**/*.js', '!./node_modules/**', '!./node_modules/*.js', '!./template/*.js'])
-//     .pipe(jshint())
-//     .pipe(jshint.reporter(stylish));
-// });
-
-gulp.task('default', function () {
-  var stream = nodemon({ script: 'app.js', env: { 'NODE_ENV': 'development', 'DEBUG': 'gulp' }, tasks: ['lint', 'test'] });
-
-  stream
-    .on('restart', function () {
-      debug('restarted!');
-    })
-    .on('crash', function () {
-      debug('Application has crashed!\n');
-      stream.emit('restart', 10);  // restart the server in 10 seconds 
-    });
-});
 
 gulp.task('test', function () {
   // Override RATE LIMIT HERE FOR UNIT TEST
