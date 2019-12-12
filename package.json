@@ -24,8 +24,6 @@
   },
   "homepage": "https://github.com/nipek/Express-REST-API-Generator#readme",
   "devDependencies": {
-    "chai": "^3.5.0",
-    "chai-as-promised": "^6.0.0",
     "conventional-github-releaser": "^1.1.12",
     "gulp": "^3.9.1",
     "gulp-bump": "^2.7.0",
