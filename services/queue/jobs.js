@@ -86,7 +86,7 @@ jobs.createSearchTags = function(data, done) {
     var dataClone = _.extend({}, data)
     if (model) {
 
-        models[model].findOne(update ? query : dataClone).then(function(currentData) {
+        models[model].findOne(update ? query : dataClone).lean().then(function(currentData) {
 
             if (update) {
                 if ((Object.entries(data).length === 1 && data.tags) || (data.tags && data.tags.length > 0)) return done(false, 'nothing to do')
