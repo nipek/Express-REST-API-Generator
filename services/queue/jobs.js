@@ -69,7 +69,7 @@ jobs.createSearchTags = function(data, done) {
     }
     // //check if a second object exists
     // //incase {$set:{}} or {$push:{}} comes turn it to {} 
-    if (data.update) {
+    if (update) {
         for (var key in data) {
             if (data[key] != null && data[key].constructor == Object) {
                 for (var key2 in data[key]) {
