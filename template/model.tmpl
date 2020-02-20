@@ -71,7 +71,7 @@ var Schema = db._mongoose.Schema(schemaObject);
 
 Schema.statics.search = function(string) {
 
-    return this.find( tags: {'$regex': new RegExp(string),'$options': 'i'});
+    return this.find( { $text: { $search: query } });
 };
 
 // assign a function to the "methods" object of our Schema
