@@ -3,15 +3,16 @@ var config = require('./config');
 var log = require('./services/logger');
 var express = require('express');
 var cluster = require('cluster');
-
+var app;
+var server;
 if (cluster.isMaster && config.env === 'production') {
-  
-	// Count the machine's CPUs
-	var cpuCount = require('os').cpus().length;
+
+    // Count the machine's CPUs
+    var cpuCount = require('os').cpus().length;
 
     // Create a worker for each CPU
     for (var i = 0; i < cpuCount; i += 1) {
-    	cluster.fork();
+        cluster.fork();
     }
 
     // Listen for dying workers
@@ -22,9 +23,8 @@ if (cluster.isMaster && config.env === 'production') {
         cluster.fork();
     });
 
-}else {
-
-    var app = express();
+} else {
+    app = express();
     var router = require('./routes');
     var express_enforces_ssl = require('express-enforces-ssl');
 
@@ -38,10 +38,12 @@ if (cluster.isMaster && config.env === 'production') {
 
     app.use('/', router);
 
+    if (config.env === 'production') {
+        log.info('Worker %d running!', cluster.worker.id);
+    }
 
 
-
-    var server = app.listen(config.port, function () {
+    server = app.listen(config.port, function () {
         var host = server.address().address;
         var port = server.address().port;
         log.info('API server listening on host ' + host + ', port ' + port + '!');

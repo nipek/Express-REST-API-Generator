@@ -1,4 +1,4 @@
-"use strict";
+'use strict';
 
 var models = require('../../models');
 var _ = require('lodash');
@@ -9,42 +9,44 @@ var request = require('request-promise');
 var q = require('q');
 var debug = require('debug')('jobs');
 var { ObjectId } = require('mongoose').Types
+var request2 = require('../request');
+var queue = require('./');
 
 var jobs = {};
 
 // Logs all API requests
-jobs.createRequestLog = function(request, done){
-    log.info('logging API request: ',request.RequestId);
+jobs.createRequestLog = function (request, done) {
+    log.info('logging API request: ', request.RequestId);
     models.RequestLogs.create(request)
-    .then(function(res){
-      return done(false, request.RequestId || request + ' request log created');
-  })
-    .catch(function(err){
-      log.error(err);
-      return done(new Error(err));
-  });
+        .then(function (res) {
+            return done(false, res.RequestId || res + ' request log created');
+        })
+        .catch(function (err) {
+            log.error(err);
+            return done({ statusCode: 422, message: err });
+        });
 };
 
 // Logs all API responses
-jobs.updateRequestLog = function(response, done){
-    log.info('logging API response: ',response.requestId);
+jobs.updateRequestLog = function (response, done) {
+    log.info('logging API response: ', response.requestId);
     var requestId = response.requestId;
-    if(response && response.requestId){
+    if (response && response.requestId) {
         delete response.requestId;
     }
-    
-    models.RequestLogs.update({RequestId: requestId},response)
-    .then(function(res){
-        return done(false, response.requestId || response + ' request log updated');
-    })
-    .catch(function(err){
-        log.error(err);
-        return done(new Error(err));
-    });
+
+    models.RequestLogs.update({ RequestId: requestId }, response)
+        .then(function (res) {
+            return done(false, res.requestId || res + ' request log updated');
+        })
+        .catch(function (err) {
+            log.error(err);
+            return done({ statusCode: 422, message: err });
+        });
 };
 
 // Creates search tags for all db records
-jobs.createSearchTags = function(data, done) {
+jobs.createSearchTags = function (data, done) {
 
     var model = data.model,
         isSQL = data.isSQL,
@@ -86,7 +88,7 @@ jobs.createSearchTags = function(data, done) {
     var dataClone = _.extend({}, data)
     if (model) {
 
-        models[model].findOne(update ? query : dataClone).lean().then(function(currentData) {
+        models[model].findOne(update ? query : dataClone).lean().then(function (currentData) {
 
             if (update) {
                 if ((Object.entries(data).length === 1 && data.tags) || (data.tags && data.tags.length > 0)) return done(false, 'nothing to do')
@@ -135,10 +137,10 @@ jobs.createSearchTags = function(data, done) {
             }
 
             task
-                .then(function(res) {
+                .then(function (res) {
                     return done(false, data._id || data + ' search index done');
                 })
-                .catch(function(err) {
+                .catch(function (err) {
                     log.error(err);
                     return done(new Error(err));
                 });
@@ -150,87 +152,40 @@ jobs.createSearchTags = function(data, done) {
 
 };
 // Backup Data to Trash
-jobs.saveToTrash = function(data, done){
-    if(data.data){
-        log.info('Saving '+data.data._id+' to Trash...');
+jobs.saveToTrash = function (data, done) {
+    if (data.data) {
+        log.info('Saving ' + data.data._id + ' to Trash...');
         models.Trash.create(data)
-        .then(function(res){
-            debug('Finished saving to trash: ', res);
-            done(false, res);
-        })
-        .catch(function(err){
-            done(new Error(err));
-        });
-    }else{
-        done(new Error('No data was passed'));
+            .then(function (res) {
+                debug('Finished saving to trash: ', res);
+                done(false, res);
+            })
+            .catch(function (err) {
+                done({ statusCode: 422, message: err });
+            });
+    } else {
+        done({ statusCode: 400, message: 'No data was passed' });
     }
-    
+
 };
 
 // Send Webhook Event
-jobs.sendWebhook = function(data, done){
-    log.info('Sending Webhook to '+data.url+' (Secure mode: '+ data.secure+') with data => '+JSON.stringify(data.data));
-    var hookData = {};
-    // Expected data
-    // {
-    // url: 'http://string.com',
-    // secure: true, // true or false
-    // data: {
-    // someData: 'this',
-    // someOtherData: 'and this'
-    // }
-    // }
-    // 
-    // Data Sent to Hook Url
-    // {
-    // secure: true, // true or false
-    // truth: 'a45de562fc65428ac537f', // checksum (Optional)
-    // x-tag: 'gjsdgjadgjdabchyriadndbmnqoeequcmbsdbmdbshjchd', // Encryption Key (Optional)
-    // data: 'Encryted data if secure is true or data object if secure is false'
-    // }
-    var hookPromise;
-    if(data.secure){
-        hookData.secure = data.secure;
-        // Convert the Object to String
-        var stringData = JSON.stringify(data.data);
-
-        // Encrypt Data
-        var key;
-        hookPromise = encryption.generateKey()
-        .then(function(resp){
-            key = resp;
-            hookData['x-tag'] = key;
-            return encryption.encrypt(stringData, key);
+jobs.sendWebhook = function (data, done) {
+    log.info('Sending Webhook...');
+    request2('webhook', data.reference, data.webhookURL, 'POST', data.data, {
+        'content-type': 'application/json'
+    })
+        .then(function (resp) {
+            done(false, resp);
         })
-        .then(function(resp){
-            hookData.data = resp.encryptedText;
-            hookData.truth = resp.truth;
-            return hookData;
-        });
-    }else{
-        hookPromise = q.fcall(function(){
-            hookData.secure = false;
-            hookData.data = data.data;
-            return hookData;
-        });
-    }
+        .catch(function (err) {
+            // // Retry in 5 minutes time
+            // queue.add('sendWebhook', data)
+            //     .delay(5 * 60000)
+            //     .save();
 
-    hookPromise
-    .then(function(resp){
-        var options = {
-            method: 'POST',
-            uri: data.url,
-            body: resp,
-            json: true // Automatically parses the JSON string in the response
-        };
-        return request(options);
-    })
-    .then(function(resp){
-        done(false, resp);
-    })
-    .catch(function(err){
-        done(new Error(err));
-    });
+            done(err);
+        });
 };
 
 // Send HTTP Request
@@ -238,8 +193,8 @@ jobs.sendWebhook = function(data, done){
 // This can be used within the code too, to do some jobs.
 // Supports POST or GET
 // Other methods not quaranteed 
-jobs.sendHTTPRequest = function(data, done){
-    log.info('Sending HTTP ' +data.method+' request to '+data.url+' with data => '+JSON.stringify(data.data)+' and headers => '+JSON.stringify(data.headers));
+jobs.sendHTTPRequest = function (data, done) {
+    log.info('Sending HTTP ' + data.method + ' request to ' + data.url + ' with data => ' + JSON.stringify(data.data) + ' and headers => ' + JSON.stringify(data.headers));
     // Expected data
     // {
     // url: 'http://string.com',
@@ -262,21 +217,21 @@ jobs.sendHTTPRequest = function(data, done){
         json: true // Automatically parses the JSON string in the response
     };
 
-    if(data.method === 'GET'){
+    if (data.method === 'GET') {
         options.qs = data.data;
-    }else if(data.method === 'POST'){
+    } else if (data.method === 'POST') {
         options.body = data.data;
-    }else{
+    } else {
         options.qs = data.data;
         options.body = data.data;
     }
     request(options)
-    .then(function(resp){
-        done(false, resp);
-    })
-    .catch(function(err){
-        done(new Error(err.message));
-    });
+        .then(function (resp) {
+            done(false, resp);
+        })
+        .catch(function (err) {
+            done({ statusCode: 422, message: err.message });
+        });
 };
 
 module.exports = jobs;

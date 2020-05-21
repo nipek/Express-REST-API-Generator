@@ -1,5 +1,7 @@
-"use strict";
+'use strict';
+var eslint = require('gulp-eslint');
 var gulp = require('gulp');
+var nodemon = require('gulp-nodemon');
 var debug = require('debug')('gulp');
 var todo = require('gulp-todo');
 var mocha = require('gulp-mocha');
@@ -17,6 +19,26 @@ var argv = require('minimist');
 
 
 
+gulp.task('lint', function () {
+  return gulp.src(['./*.js', './**/*.js', '!./node_modules/**', '!./node_modules/*.js', '!./template/*.js'])
+    .pipe(eslint())
+    .pipe(eslint.format())
+    .pipe(eslint.failAfterError());
+});
+
+gulp.task('default', function () {
+  var stream = nodemon({ script: 'app.js', env: { 'NODE_ENV': 'development', 'DEBUG': 'gulp' }, tasks: ['lint', 'test'] });
+
+  stream
+    .on('restart', function () {
+      debug('restarted!');
+    })
+    .on('crash', function () {
+      debug('Application has crashed!\n');
+      stream.emit('restart', 10); // restart the server in 10 seconds 
+    });
+});
+
 gulp.task('test', function () {
   // Override RATE LIMIT HERE FOR UNIT TEST
   // process.env.RATE_LIMIT = 10;
@@ -28,14 +50,13 @@ gulp.task('test', function () {
     .pipe(mocha({
       reporter: 'spec'
     }));
-}
-);
+});
 
 // Remember to pass argument '--name TheServiceName' or '-n TheServiceName' to the service creation command
 // If you want to use an API as a database model, pass the base url and the endpoint. '--baseurl http://google.com' or '--b http://google.com'
 // '--endpoint users' or '--e users'
 // Note that the name must be singular
-gulp.task('service', function () {
+gulp.task('service', function (done) {
   var args = argv(process.argv.slice(2));
   var name;
   var baseurl;
@@ -51,7 +72,9 @@ gulp.task('service', function () {
     endpoint = args.e;
   }
 
-  isSQL = args.sql;
+  if (!endpoint) {
+    endpoint = args.e;
+  }
 
   name = args.name;
 
@@ -85,20 +108,20 @@ gulp.task('service', function () {
   });
 
   // Create the Route Unit Test
-  // fs.readFile(isSQL ? './template/route_sql_test.tmpl' : './template/route_test.tmpl', function (err, data) {
-  //   if (err) {
-  //     throw err;
-  //   }
-  //   var tpl = _.template(data);
-  //   var result = tpl({ service: nameCapitalise, object: nameLowerCase });
+  fs.readFile(isSQL ? './template/route_sql_test.tmpl' : './template/route_test.tmpl', function (err, data) {
+    if (err) {
+      throw err;
+    }
+    var tpl = _.template(data);
+    var result = tpl({ service: nameCapitalise, object: nameLowerCase });
 
-  //   fs.writeFile('./test/routes/' + namePlural + '.js', result, function (err) {
-  //     if (err) {
-  //       throw err;
-  //     }
-  //     console.log('Route unit test created at ./test/routes/' + namePlural + '.js');
-  //   });
-  // });
+    fs.writeFile('./test/routes/' + namePlural + '.js', result, function (err) {
+      if (err) {
+        throw err;
+      }
+      console.log('Route unit test created at ./test/routes/' + namePlural + '.js');
+    });
+  });
 
   // Create the Model
   if (baseurl && endpoint) {
@@ -116,7 +139,8 @@ gulp.task('service', function () {
         console.log('Model created at ./models/' + nameCapitalisePlural + '.js');
       });
     });
-  } else {
+  }
+  else {
     fs.readFile(isSQL ? './template/model_sql.tmpl' : './template/model.tmpl', function (err, data) {
       if (err) {
         throw err;
@@ -134,20 +158,20 @@ gulp.task('service', function () {
   }
 
   // Create the Model Unit Test
-  // fs.readFile(isSQL ? './template/model_sql_test.tmpl' : './template/model_test.tmpl', function (err, data) {
-  //   if (err) {
-  //     throw err;
-  //   }
-  //   var tpl = _.template(data);
-  //   var result = tpl({ service: nameCapitalise, object: nameLowerCase });
+  fs.readFile(isSQL ? './template/model_sql_test.tmpl' : './template/model_test.tmpl', function (err, data) {
+    if (err) {
+      throw err;
+    }
+    var tpl = _.template(data);
+    var result = tpl({ service: nameCapitalise, object: nameLowerCase });
 
-  //   fs.writeFile('./test/models/' + namePlural + '.js', result, function (err) {
-  //     if (err) {
-  //       throw err;
-  //     }
-  //     console.log('Model unit test created at ./test/models/' + namePlural + '.js');
-  //   });
-  // });
+    fs.writeFile('./test/models/' + namePlural + '.js', result, function (err) {
+      if (err) {
+        throw err;
+      }
+      console.log('Model unit test created at ./test/models/' + namePlural + '.js');
+    });
+  });
 
   // Create the controller
   fs.readFile(isSQL ? './template/controller_sql.tmpl' : './template/controller.tmpl', function (err, data) {
@@ -166,20 +190,22 @@ gulp.task('service', function () {
   });
 
   // Create the controller Unit test
-  // fs.readFile(isSQL ? './template/controller_sql_test.tmpl' : './template/controller_test.tmpl', function (err, data) {
-  //   if (err) {
-  //     throw err;
-  //   }
-  //   var tpl = _.template(data);
-  //   var result = tpl({ service: nameCapitalise, object: nameLowerCase });
+  fs.readFile(isSQL ? './template/controller_sql_test.tmpl' : './template/controller_test.tmpl', function (err, data) {
+    if (err) {
+      throw err;
+    }
+    var tpl = _.template(data);
+    var result = tpl({ service: nameCapitalise, object: nameLowerCase });
 
-  //   fs.writeFile('./test/controllers/' + namePlural + '.js', result, function (err) {
-  //     if (err) {
-  //       throw err;
-  //     }
-  //     console.log('Controller unit test created at ./test/controllers/' + namePlural + '.js');
-  //   });
-  // });
+    fs.writeFile('./test/controllers/' + namePlural + '.js', result, function (err) {
+      if (err) {
+        throw err;
+      }
+      console.log('Controller unit test created at ./test/controllers/' + namePlural + '.js');
+    });
+  });
+
+  return done();
 
 });
 
@@ -191,7 +217,7 @@ gulp.task('todo', function () {
   // -> Will output a TODO.md with your todos 
 });
 
-gulp.task('sanity', ['lint', 'test', 'todo']);
+gulp.task('sanity', gulp.series('lint', 'test', 'todo'));
 
 // Release
 
@@ -207,7 +233,7 @@ gulp.task('changelog', function () {
 
 gulp.task('github-release', function (done) {
   conventionalGithubReleaser({
-    type: "oauth",
+    type: 'oauth',
     token: config.gitOAuthToken // change this to your own GitHub token or use an environment variable
   }, {
     preset: 'angular' // Or to any other commit message convention you use.
@@ -222,7 +248,8 @@ gulp.task('bump-version', function () {
   // command argument whether you are doing a 'major', 'minor' or a 'patch' change.
   if (!args.r) {
     throw new Error('The release type is not defined! Please pass the -r switch with a release type argument (patch/minor/major)');
-  } else {
+  }
+  else {
     return gulp.src(['./package.json'])
       .pipe(bump({ type: args.r }).on('error', gutil.log))
       .pipe(gulp.dest('./'));
@@ -254,21 +281,16 @@ gulp.task('create-new-tag', function (cb) {
   });
 });
 
-gulp.task('release', function (callback) {
-  runSequence(
-    'sanity',
-    'bump-version',
-    'changelog',
-    'commit-changes',
-    'push-changes',
-    'create-new-tag',
-    'github-release',
-    function (error) {
-      if (error) {
-        console.log(error.message);
-      } else {
-        console.log('RELEASE FINISHED SUCCESSFULLY');
-      }
-      callback(error);
-    });
+gulp.task('release_done', function (cb) {
+  console.log('RELEASE FINISHED SUCCESSFULLY');
+  cb();
 });
+
+gulp.task('release', gulp.series(
+  'bump-version',
+  'changelog',
+  'commit-changes',
+  'push-changes',
+  'create-new-tag',
+  'github-release',
+  'release_done'));

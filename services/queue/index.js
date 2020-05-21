@@ -1,4 +1,4 @@
-"use strict";
+'use strict';
 var config = require('../../config');
 var Queue = require('bull');
 var queue = new Queue('background workers', config.redisURL);
@@ -33,7 +33,7 @@ queue
   }).on('error', function (err) {
     log.error('Queue Error... ', err);
   }).on('stalled', function (job) {
-    log.info('stalled job, restarting it again! %s %s %s', job.queue.name, job.data,  job.id);
+    log.info('stalled job, restarting it again! %s %s %s', job.queue.name, job.data, job.id);
   });
 
 
