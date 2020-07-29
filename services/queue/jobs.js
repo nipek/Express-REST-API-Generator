@@ -52,6 +52,8 @@ jobs.createSearchTags = function (data, done) {
         isSQL = data.isSQL,
         update = data.update ? true : false,
         query = {};
+    if (model && model === 'Requestlogs') return done(false, 'No Tags for Request Logs')
+
     if (data && data.update) {
         query = data.query
         delete data.query

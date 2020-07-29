@@ -121,7 +121,27 @@ if(limit !== -1 || from != null){
         if(sort){
             question = question.sort(sort);
         }
-        if(populate){
+       if (populate) {
+           //loan.product
+           //support deep populate 
+            populate.split(' ').map((p,i)=>{
+                if(i===0)populate = []
+                                    if(p.includes('.')){
+                             const chk =       populate.findIndex(x => x.path === p.split('.')[0])
+                if(chk >-1){
+                populate[chk].populate.push({path:p.split('.')[1]})
+                }else{
+                                        populate.push({
+                                            path:p.split('.')[0],
+                                            populate:[{path:p.split('.')[1]}]
+                                        })
+                                        }
+                                    }else{
+                                        populate.push({
+                                            path:p
+                                        })
+                                    }
+                                })
             question = question.populate(populate);
         }
 
