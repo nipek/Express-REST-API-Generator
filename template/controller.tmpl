@@ -106,7 +106,7 @@ var <%= service %>sController = {};
             delete query.populate;
         }
         var totalResult = <%= service %>s.countDocuments(query);
-        var total = <%= service %>s.estimatedDocumentCount({});
+        var total = <%= service %>s.estimatedDocumentCount(query);
         var question = <%= service %>s.find(query);
 if(skip !== 0){
  question = question.skip(skip)
