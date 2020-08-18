@@ -88,7 +88,7 @@ jobs.createSearchTags = function (data, done) {
     log.info('Creating search index for: ', data._id || data);
 
     var dataClone = _.extend({}, data)
-    if (model) {
+    if (model && models[model]) {
 
         models[model].findOne(update ? query : dataClone).lean().then(function (currentData) {
 
@@ -127,7 +127,7 @@ jobs.createSearchTags = function (data, done) {
                 }
             }
             split = _.flattenDeep(split);
-
+            if (split.length === 0) return done(false, data._id || JSON.stringify(data) + ' search index skipped');
             var task;
 
 
